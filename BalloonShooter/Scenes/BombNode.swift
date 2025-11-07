@@ -92,33 +92,15 @@ class BombNode: SKShapeNode {
             completion()
         }
 
-        // Explosion particles
+        // Enhanced explosion particles
         if let parent = self.parent {
-            let explosion = createExplosionParticles()
+            let explosion = DesignSystem.Particles.createExplosionParticles()
             explosion.position = self.position
             parent.addChild(explosion)
 
-            let wait = SKAction.wait(forDuration: 1.0)
+            let wait = SKAction.wait(forDuration: 1.2)
             let removeExplosion = SKAction.removeFromParent()
             explosion.run(SKAction.sequence([wait, removeExplosion]))
         }
-    }
-
-    private func createExplosionParticles() -> SKEmitterNode {
-        let particles = SKEmitterNode()
-        particles.particleTexture = TextureGenerator.sparkTexture
-        particles.particleBirthRate = 200
-        particles.numParticlesToEmit = 50
-        particles.particleLifetime = 0.8
-        particles.particleSpeed = 150
-        particles.particleSpeedRange = 50
-        particles.emissionAngleRange = .pi * 2
-        particles.particleScale = 0.4
-        particles.particleScaleRange = 0.3
-        particles.particleAlpha = 1.0
-        particles.particleAlphaSpeed = -1.5
-        particles.particleColor = .orange
-        particles.particleColorBlendFactor = 1.0
-        return particles
     }
 }

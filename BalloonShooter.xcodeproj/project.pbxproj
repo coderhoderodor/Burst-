@@ -25,6 +25,8 @@
 		AA0031 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0032; };
 		AA0033 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0034; };
 		AA0039 /* TextureGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0041; };
+		AA0042 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0043; };
+		AA0044 /* ScorePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0045; };
 		AA0035 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0036; };
 		AA0037 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA0038; };
 /* End PBXBuildFile section */
@@ -48,6 +50,8 @@
 		AA0032 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		AA0034 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		AA0041 /* TextureGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureGenerator.swift; sourceTree = "<group>"; };
+		AA0043 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		AA0045 /* ScorePopup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePopup.swift; sourceTree = "<group>"; };
 		AA0036 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0038 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AA0040 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -137,6 +141,8 @@
 			isa = PBXGroup;
 			children = (
 				AA0041 /* TextureGenerator.swift */,
+				AA0043 /* DesignSystem.swift */,
+				AA0045 /* ScorePopup.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -229,6 +235,8 @@
 				AA0031 /* DataManager.swift in Sources */,
 				AA0033 /* AudioManager.swift in Sources */,
 				AA0039 /* TextureGenerator.swift in Sources */,
+				AA0042 /* DesignSystem.swift in Sources */,
+				AA0044 /* ScorePopup.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

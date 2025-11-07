@@ -20,9 +20,19 @@ class BalloonNode: SKShapeNode {
         let path = UIBezierPath(ovalIn: CGRect(x: -size/2, y: -size/2, width: size, height: size))
         self.path = path.cgPath
         self.fillColor = type.color
-        self.strokeColor = type.color.withAlphaComponent(0.8)
-        self.lineWidth = 2
+        // White outline for better contrast
+        self.strokeColor = type == .bomb ? DesignSystem.Colors.bombWarning : .white
+        self.lineWidth = type == .bomb ? 3 : 2
         self.position = position
+
+        // Add shadow effect (darker circle behind)
+        let shadowSize = size + 4
+        let shadowPath = UIBezierPath(ovalIn: CGRect(x: -shadowSize/2, y: -shadowSize/2 - 2, width: shadowSize, height: shadowSize))
+        let shadow = SKShapeNode(path: shadowPath.cgPath)
+        shadow.fillColor = UIColor(white: 0, alpha: 0.2)
+        shadow.strokeColor = .clear
+        shadow.zPosition = -1
+        addChild(shadow)
 
         // Add visual indicator based on type
         addVisualIndicator(for: type, size: size)
@@ -49,6 +59,26 @@ class BalloonNode: SKShapeNode {
             ])
             run(SKAction.repeatForever(moveAction))
         }
+
+        // Warning pulsing for bomb balloons
+        if type == .bomb {
+            let pulse = SKAction.sequence([
+                SKAction.run { [weak self] in
+                    self?.strokeColor = DesignSystem.Colors.bombWarning
+                },
+                SKAction.wait(forDuration: 0.5),
+                SKAction.run { [weak self] in
+                    self?.strokeColor = .white
+                },
+                SKAction.wait(forDuration: 0.5)
+            ])
+            run(SKAction.repeatForever(pulse), withKey: "bombWarning")
+        }
+
+        // Spawn animation
+        setScale(0.1)
+        let popIn = DesignSystem.Effects.popInAnimation()
+        run(popIn)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -242,9 +272,18 @@ class BalloonNode: SKShapeNode {
     }
 
     func pop(completion: @escaping () -> Void) {
-        // Pop animation
-        let scaleUp = SKAction.scale(to: 1.3, duration: 0.1)
-        let fadeOut = SKAction.fadeOut(withDuration: 0.1)
+        // Flash white for 1 frame for impact
+        let originalColor = self.fillColor
+        self.fillColor = .white
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.016) {
+            self.fillColor = originalColor
+        }
+
+        // Pop animation with overshoot
+        let scaleUp = SKAction.scale(to: 1.4, duration: 0.15)
+        scaleUp.timingMode = .easeOut
+        let fadeOut = SKAction.fadeOut(withDuration: 0.15)
         let group = SKAction.group([scaleUp, fadeOut])
         let remove = SKAction.removeFromParent()
         let sequence = SKAction.sequence([group, remove])
@@ -253,9 +292,9 @@ class BalloonNode: SKShapeNode {
             completion()
         }
 
-        // Particle effect
+        // Enhanced particle effect using design system
         if let parent = self.parent {
-            let particles = createPopParticles()
+            let particles = DesignSystem.Particles.createPopParticles(color: self.fillColor)
             particles.position = self.position
             parent.addChild(particles)
 
@@ -263,23 +302,6 @@ class BalloonNode: SKShapeNode {
             let removeParticles = SKAction.removeFromParent()
             particles.run(SKAction.sequence([wait, removeParticles]))
         }
-    }
-
-    private func createPopParticles() -> SKEmitterNode {
-        let particles = SKEmitterNode()
-        particles.particleTexture = SKTexture(imageNamed: "spark")
-        particles.particleBirthRate = 100
-        particles.numParticlesToEmit = 20
-        particles.particleLifetime = 0.5
-        particles.particleSpeed = 100
-        particles.particleSpeedRange = 50
-        particles.emissionAngleRange = .pi * 2
-        particles.particleScale = 0.3
-        particles.particleScaleRange = 0.2
-        particles.particleAlpha = 1.0
-        particles.particleAlphaSpeed = -2.0
-        particles.particleColor = self.fillColor
-        return particles
     }
 }
 

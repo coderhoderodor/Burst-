@@ -30,13 +30,13 @@ enum BalloonType {
 
     var color: UIColor {
         switch self {
-        case .regular: return .systemRed
-        case .bomb: return .darkGray
-        case .shield: return .systemBlue
-        case .golden: return .systemYellow
-        case .multi: return .systemPurple
-        case .mystery: return .systemOrange
-        case .speed: return .systemGreen
+        case .regular: return DesignSystem.Colors.regular
+        case .bomb: return DesignSystem.Colors.bomb
+        case .shield: return DesignSystem.Colors.shield
+        case .golden: return DesignSystem.Colors.golden
+        case .multi: return DesignSystem.Colors.multi
+        case .mystery: return DesignSystem.Colors.mystery
+        case .speed: return DesignSystem.Colors.speed
         }
     }
 
