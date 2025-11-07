@@ -57,7 +57,7 @@ class MenuScene: SKScene {
     }
 
     private func setupTitle() {
-        let title = SKLabelNode(text: "🎈 Balloon Shooter 🎈")
+        let title = SKLabelNode(text: "BALLOON SHOOTER")
         title.fontSize = 48
         title.fontName = "Arial-BoldMT"
         title.fontColor = .white
@@ -65,7 +65,7 @@ class MenuScene: SKScene {
         title.zPosition = 10
 
         // Add shadow effect
-        let shadow = SKLabelNode(text: "🎈 Balloon Shooter 🎈")
+        let shadow = SKLabelNode(text: "BALLOON SHOOTER")
         shadow.fontSize = 48
         shadow.fontName = "Arial-BoldMT"
         shadow.fontColor = .black
@@ -169,7 +169,7 @@ class MenuScene: SKScene {
         let dataManager = DataManager.shared
 
         let statsY: CGFloat = 40
-        let statsText = "Best: \(dataManager.getHighScore(for: .arcade)) | Total: \(dataManager.totalBalloonsPopped) 🎈"
+        let statsText = "Best: \(dataManager.getHighScore(for: .arcade)) | Total Popped: \(dataManager.totalBalloonsPopped)"
 
         let stats = SKLabelNode(text: statsText)
         stats.fontSize = 16

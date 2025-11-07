@@ -53,7 +53,7 @@ class ArrowNode: SKShapeNode {
 
     private func addTrailEffect() {
         let trail = SKEmitterNode()
-        trail.particleTexture = SKTexture(imageNamed: "spark")
+        trail.particleTexture = TextureGenerator.sparkTexture
         trail.particleBirthRate = 50
         trail.particleLifetime = 0.3
         trail.particleSpeed = 0

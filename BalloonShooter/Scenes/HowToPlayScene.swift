@@ -35,25 +35,25 @@ class HowToPlayScene: SKScene {
 
     private func setupInstructions() {
         let instructions = [
-            "🎯 Objective",
+            "OBJECTIVE",
             "Pop balloons to score points while",
             "avoiding bomb balloons!",
             "",
-            "🏹 Controls",
+            "CONTROLS",
             "1. Touch and drag to aim your bow",
             "2. Pull back to increase power",
             "3. Release to shoot",
             "",
-            "🎈 Balloon Types",
-            "🎈 Regular: 10 points",
-            "💣 Bomb: Drops a bomb when hit!",
-            "🛡️ Shield: Protects from one bomb",
-            "✨ Golden: 50 points (moves fast)",
-            "🎪 Multi: Splits into 3 balloons",
-            "❓ Mystery: Could be good or bad!",
-            "⚡ Speed: 25 points (moves quickly)",
+            "BALLOON TYPES",
+            "• Regular: 10 points (red)",
+            "• Bomb: Drops a bomb when hit! (dark)",
+            "• Shield: Protects from one bomb (blue)",
+            "• Golden: 50 points, moves fast (yellow)",
+            "• Multi: Splits into 3 balloons (purple)",
+            "• Mystery: Could be good or bad! (orange)",
+            "• Speed: 25 points, moves quickly (green)",
             "",
-            "💡 Tips",
+            "TIPS",
             "• Build combos for bonus points",
             "• Watch out for bomb balloons",
             "• Complete waves for bonuses",
@@ -71,9 +71,13 @@ class HowToPlayScene: SKScene {
                 continue
             }
 
-            // Check if it's a section title
-            if instruction.contains("🎯") || instruction.contains("🏹") ||
-               instruction.contains("🎈") || instruction.contains("💡") {
+            // Check if it's a section title (all caps with no punctuation at end)
+            let isSectionTitle = instruction.uppercased() == instruction &&
+                                 !instruction.contains("•") &&
+                                 !instruction.contains(":") &&
+                                 instruction.count < 20
+
+            if isSectionTitle {
                 label.fontSize = 28
                 label.fontName = "Arial-BoldMT"
                 label.fontColor = .yellow

@@ -75,7 +75,7 @@ class GameOverScene: SKScene {
         addChild(highScoreLabel)
 
         if finalScore >= highScore && finalScore > 0 {
-            let newRecordLabel = SKLabelNode(text: "🎉 NEW RECORD! 🎉")
+            let newRecordLabel = SKLabelNode(text: "*** NEW RECORD! ***")
             newRecordLabel.fontSize = 28
             newRecordLabel.fontName = "Arial-BoldMT"
             newRecordLabel.fontColor = .yellow
@@ -106,13 +106,13 @@ class GameOverScene: SKScene {
         // Accuracy rating
         let rating: String
         if accuracy >= 0.8 {
-            rating = "🎯 Sharpshooter!"
+            rating = "Sharpshooter!"
         } else if accuracy >= 0.6 {
-            rating = "👍 Good Aim"
+            rating = "Good Aim"
         } else if accuracy >= 0.4 {
-            rating = "📈 Keep Practicing"
+            rating = "Keep Practicing"
         } else {
-            rating = "🎈 Try Again"
+            rating = "Try Again"
         }
 
         yPos -= 35
@@ -207,7 +207,7 @@ class GameOverScene: SKScene {
     private func shareScore() {
         // In a real implementation, this would trigger UIActivityViewController
         // For now, just show a message
-        let message = SKLabelNode(text: "Score shared! 🎉")
+        let message = SKLabelNode(text: "Score shared!")
         message.fontSize = 24
         message.fontColor = .green
         message.position = CGPoint(x: size.width / 2, y: size.height / 2)

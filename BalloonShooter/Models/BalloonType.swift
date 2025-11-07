@@ -60,15 +60,27 @@ enum BalloonType {
         }
     }
 
-    var icon: String {
+    var displayName: String {
         switch self {
-        case .regular: return "🎈"
-        case .bomb: return "💣"
-        case .shield: return "🛡️"
-        case .golden: return "✨"
-        case .multi: return "🎪"
-        case .mystery: return "❓"
-        case .speed: return "⚡"
+        case .regular: return "Regular"
+        case .bomb: return "Bomb"
+        case .shield: return "Shield"
+        case .golden: return "Golden"
+        case .multi: return "Multi"
+        case .mystery: return "Mystery"
+        case .speed: return "Speed"
+        }
+    }
+
+    var secondaryColor: UIColor {
+        switch self {
+        case .regular: return .systemPink
+        case .bomb: return .black
+        case .shield: return .cyan
+        case .golden: return .orange
+        case .multi: return .magenta
+        case .mystery: return .brown
+        case .speed: return .systemTeal
         }
     }
 }

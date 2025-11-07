@@ -20,11 +20,29 @@ class BombNode: SKShapeNode {
         self.lineWidth = 2
         self.position = position
 
-        // Add icon
-        let label = SKLabelNode(text: "💣")
-        label.fontSize = 25
-        label.verticalAlignmentMode = .center
-        addChild(label)
+        // Add fuse
+        let fusePath = UIBezierPath()
+        fusePath.move(to: CGPoint(x: 0, y: 15))
+        fusePath.addLine(to: CGPoint(x: -5, y: 25))
+        let fuse = SKShapeNode(path: fusePath.cgPath)
+        fuse.strokeColor = .brown
+        fuse.lineWidth = 3
+        addChild(fuse)
+
+        // Add spark at end of fuse
+        let spark = SKShapeNode(circleOfRadius: 3)
+        spark.fillColor = .orange
+        spark.strokeColor = .yellow
+        spark.lineWidth = 1
+        spark.position = CGPoint(x: -5, y: 25)
+        addChild(spark)
+
+        // Pulsing spark animation
+        let pulse = SKAction.sequence([
+            SKAction.scale(to: 1.3, duration: 0.3),
+            SKAction.scale(to: 1.0, duration: 0.3)
+        ])
+        spark.run(SKAction.repeatForever(pulse))
 
         // Physics body
         self.physicsBody = SKPhysicsBody(circleOfRadius: 15)
@@ -48,7 +66,7 @@ class BombNode: SKShapeNode {
 
     private func addSmokeTrail() {
         let smoke = SKEmitterNode()
-        smoke.particleTexture = SKTexture(imageNamed: "spark")
+        smoke.particleTexture = TextureGenerator.sparkTexture
         smoke.particleBirthRate = 20
         smoke.particleLifetime = 1.0
         smoke.particleSpeed = 20
@@ -88,7 +106,7 @@ class BombNode: SKShapeNode {
 
     private func createExplosionParticles() -> SKEmitterNode {
         let particles = SKEmitterNode()
-        particles.particleTexture = SKTexture(imageNamed: "spark")
+        particles.particleTexture = TextureGenerator.sparkTexture
         particles.particleBirthRate = 200
         particles.numParticlesToEmit = 50
         particles.particleLifetime = 0.8

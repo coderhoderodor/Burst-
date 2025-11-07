@@ -24,6 +24,7 @@
 		AA0029 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0030; };
 		AA0031 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0032; };
 		AA0033 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0034; };
+		AA0039 /* TextureGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0041; };
 		AA0035 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0036; };
 		AA0037 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA0038; };
 /* End PBXBuildFile section */
@@ -46,6 +47,7 @@
 		AA0030 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
 		AA0032 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		AA0034 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		AA0041 /* TextureGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureGenerator.swift; sourceTree = "<group>"; };
 		AA0036 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0038 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AA0040 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 				AA0070 /* Scenes */,
 				AA0071 /* Models */,
 				AA0072 /* Managers */,
+				AA0073 /* Utils */,
 				AA0036 /* Assets.xcassets */,
 				AA0038 /* LaunchScreen.storyboard */,
 				AA0040 /* Info.plist */,
@@ -128,6 +131,14 @@
 				AA0034 /* AudioManager.swift */,
 			);
 			path = Managers;
+			sourceTree = "<group>";
+		};
+		AA0073 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				AA0041 /* TextureGenerator.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -217,6 +228,7 @@
 				AA0029 /* GameManager.swift in Sources */,
 				AA0031 /* DataManager.swift in Sources */,
 				AA0033 /* AudioManager.swift in Sources */,
+				AA0039 /* TextureGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

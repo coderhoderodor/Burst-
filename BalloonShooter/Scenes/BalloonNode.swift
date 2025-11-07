@@ -24,12 +24,8 @@ class BalloonNode: SKShapeNode {
         self.lineWidth = 2
         self.position = position
 
-        // Add icon label
-        let label = SKLabelNode(text: type.icon)
-        label.fontSize = size * 0.5
-        label.verticalAlignmentMode = .center
-        label.position = CGPoint(x: 0, y: 0)
-        addChild(label)
+        // Add visual indicator based on type
+        addVisualIndicator(for: type, size: size)
 
         // Physics body for collision detection
         self.physicsBody = SKPhysicsBody(circleOfRadius: size/2)
@@ -57,6 +53,184 @@ class BalloonNode: SKShapeNode {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func addVisualIndicator(for type: BalloonType, size: CGFloat) {
+        let scale = size / 50.0 // Base size is 50
+
+        switch type {
+        case .regular:
+            // Add shine effect
+            let shine = SKShapeNode(circleOfRadius: size * 0.15)
+            shine.fillColor = .white
+            shine.strokeColor = .clear
+            shine.alpha = 0.6
+            shine.position = CGPoint(x: -size * 0.2, y: size * 0.2)
+            addChild(shine)
+
+        case .bomb:
+            // Add skull symbol (simplified)
+            let skull = createSkullSymbol(scale: scale)
+            skull.position = CGPoint(x: 0, y: 0)
+            addChild(skull)
+
+        case .shield:
+            // Add shield symbol
+            let shield = createShieldSymbol(scale: scale)
+            shield.position = CGPoint(x: 0, y: 0)
+            addChild(shield)
+
+        case .golden:
+            // Add star/sparkle effect
+            let star = createStarSymbol(scale: scale)
+            star.position = CGPoint(x: 0, y: 0)
+            addChild(star)
+
+            // Add rotation animation for golden
+            let rotate = SKAction.rotate(byAngle: .pi * 2, duration: 2.0)
+            star.run(SKAction.repeatForever(rotate))
+
+        case .multi:
+            // Add three small circles
+            for i in 0..<3 {
+                let angle = CGFloat(i) * (.pi * 2 / 3)
+                let radius = size * 0.25
+                let x = cos(angle) * radius
+                let y = sin(angle) * radius
+
+                let circle = SKShapeNode(circleOfRadius: size * 0.12)
+                circle.fillColor = type.secondaryColor
+                circle.strokeColor = .white
+                circle.lineWidth = 1
+                circle.position = CGPoint(x: x, y: y)
+                addChild(circle)
+            }
+
+        case .mystery:
+            // Add question mark
+            let questionMark = createQuestionMarkSymbol(scale: scale)
+            questionMark.position = CGPoint(x: 0, y: 0)
+            addChild(questionMark)
+
+        case .speed:
+            // Add lightning bolt
+            let lightning = createLightningSymbol(scale: scale)
+            lightning.position = CGPoint(x: 0, y: 0)
+            addChild(lightning)
+        }
+    }
+
+    private func createSkullSymbol(scale: CGFloat) -> SKNode {
+        let container = SKNode()
+
+        // Skull outline (simplified circle)
+        let head = SKShapeNode(circleOfRadius: 12 * scale)
+        head.fillColor = .white
+        head.strokeColor = .black
+        head.lineWidth = 1
+        container.addChild(head)
+
+        // Eyes
+        let leftEye = SKShapeNode(circleOfRadius: 3 * scale)
+        leftEye.fillColor = .black
+        leftEye.strokeColor = .clear
+        leftEye.position = CGPoint(x: -5 * scale, y: 3 * scale)
+        container.addChild(leftEye)
+
+        let rightEye = SKShapeNode(circleOfRadius: 3 * scale)
+        rightEye.fillColor = .black
+        rightEye.strokeColor = .clear
+        rightEye.position = CGPoint(x: 5 * scale, y: 3 * scale)
+        container.addChild(rightEye)
+
+        // X mouth
+        let mouthPath = UIBezierPath()
+        mouthPath.move(to: CGPoint(x: -4 * scale, y: -5 * scale))
+        mouthPath.addLine(to: CGPoint(x: 4 * scale, y: -5 * scale))
+        let mouth = SKShapeNode(path: mouthPath.cgPath)
+        mouth.strokeColor = .black
+        mouth.lineWidth = 2 * scale
+        container.addChild(mouth)
+
+        return container
+    }
+
+    private func createShieldSymbol(scale: CGFloat) -> SKNode {
+        let shieldPath = UIBezierPath()
+        shieldPath.move(to: CGPoint(x: 0, y: 15 * scale))
+        shieldPath.addLine(to: CGPoint(x: -10 * scale, y: 10 * scale))
+        shieldPath.addLine(to: CGPoint(x: -10 * scale, y: -5 * scale))
+        shieldPath.addLine(to: CGPoint(x: 0, y: -15 * scale))
+        shieldPath.addLine(to: CGPoint(x: 10 * scale, y: -5 * scale))
+        shieldPath.addLine(to: CGPoint(x: 10 * scale, y: 10 * scale))
+        shieldPath.close()
+
+        let shield = SKShapeNode(path: shieldPath.cgPath)
+        shield.fillColor = .white
+        shield.strokeColor = .black
+        shield.lineWidth = 2 * scale
+
+        return shield
+    }
+
+    private func createStarSymbol(scale: CGFloat) -> SKNode {
+        let starPath = UIBezierPath()
+        let points = 5
+        let outerRadius: CGFloat = 12 * scale
+        let innerRadius: CGFloat = 5 * scale
+
+        for i in 0..<points * 2 {
+            let angle = CGFloat(i) * .pi / CGFloat(points) - .pi / 2
+            let radius = i % 2 == 0 ? outerRadius : innerRadius
+            let x = cos(angle) * radius
+            let y = sin(angle) * radius
+
+            if i == 0 {
+                starPath.move(to: CGPoint(x: x, y: y))
+            } else {
+                starPath.addLine(to: CGPoint(x: x, y: y))
+            }
+        }
+        starPath.close()
+
+        let star = SKShapeNode(path: starPath.cgPath)
+        star.fillColor = .white
+        star.strokeColor = .orange
+        star.lineWidth = 2 * scale
+
+        return star
+    }
+
+    private func createQuestionMarkSymbol(scale: CGFloat) -> SKNode {
+        let container = SKNode()
+
+        // Question mark using label (simplified)
+        let label = SKLabelNode(text: "?")
+        label.fontSize = 24 * scale
+        label.fontName = "Arial-BoldMT"
+        label.fontColor = .white
+        label.verticalAlignmentMode = .center
+        container.addChild(label)
+
+        return container
+    }
+
+    private func createLightningSymbol(scale: CGFloat) -> SKNode {
+        let lightningPath = UIBezierPath()
+        lightningPath.move(to: CGPoint(x: 0, y: 15 * scale))
+        lightningPath.addLine(to: CGPoint(x: -5 * scale, y: 2 * scale))
+        lightningPath.addLine(to: CGPoint(x: 2 * scale, y: 2 * scale))
+        lightningPath.addLine(to: CGPoint(x: -3 * scale, y: -15 * scale))
+        lightningPath.addLine(to: CGPoint(x: 5 * scale, y: -5 * scale))
+        lightningPath.addLine(to: CGPoint(x: -2 * scale, y: -5 * scale))
+        lightningPath.close()
+
+        let lightning = SKShapeNode(path: lightningPath.cgPath)
+        lightning.fillColor = .yellow
+        lightning.strokeColor = .white
+        lightning.lineWidth = 2 * scale
+
+        return lightning
     }
 
     private func addFloatingAnimation() {

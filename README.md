@@ -1,4 +1,4 @@
-# 🎈 Balloon Shooter
+# Balloon Shooter
 
 A mobile arcade game for iOS where players shoot arrows from a bow to pop balloons while avoiding bomb balloons. Features risk-reward decision making, multiple game modes, and progressive difficulty.
 
@@ -19,49 +19,50 @@ A mobile arcade game for iOS where players shoot arrows from a bow to pop balloo
 - **Power-Ups**: Slow Motion, Multi-Arrow, Auto-Shield, and Explosive Arrow
 - **Progressive Difficulty**: Waves get harder with more balloons and bombs
 - **Combo System**: Chain hits for score multipliers
-- **Visual Polish**: Smooth animations, particle effects, and haptic feedback
+- **Visual Polish**: Smooth animations, programmatic particle effects, and haptic feedback
+- **Custom Graphics**: Programmatically generated visual indicators for each balloon type
 - **Data Persistence**: High scores, statistics, and settings saved locally
 
 ## Game Modes
 
-### 🎮 Arcade Mode (Default)
+### Arcade Mode (Default)
 - Endless waves with progressive difficulty
 - Start with 3 lives, regenerate 1 life every 3 waves
 - Focus on high scores and wave completion
 
-### ⏱️ Time Attack
+### Time Attack
 - 60 seconds on the clock
 - Pop as many balloons as possible
 - No bomb balloons (pure scoring mode)
 
-### 🎯 Precision Mode
+### Precision Mode
 - Limited to 20 arrows per game
 - Strategic resource management required
 - One bomb hit = game over
 
-### 💀 Survival Mode
+### Survival Mode
 - Start with only 1 life
 - See how long you can last
 - Increasing bomb balloon ratio
 
 ## Balloon Types
 
-| Balloon | Points | Description |
-|---------|--------|-------------|
-| 🎈 Regular | 10 | Standard balloon, safe to pop |
-| 💣 Bomb | 0 | Drops a bomb when hit! |
-| 🛡️ Shield | 20 | Grants protection from one bomb |
-| ✨ Golden | 50 | High value, moves erratically |
-| 🎪 Multi | 15 | Splits into 3 smaller balloons |
-| ❓ Mystery | Variable | 50/50 chance of bonus or bomb |
-| ⚡ Speed | 25 | Moves quickly across screen |
+| Balloon | Color | Points | Description |
+|---------|-------|--------|-------------|
+| Regular | Red | 10 | Standard balloon with shine effect, safe to pop |
+| Bomb | Dark Gray | 0 | Skull symbol, drops a bomb when hit! |
+| Shield | Blue | 20 | Shield icon, grants protection from one bomb |
+| Golden | Yellow | 50 | Rotating star, high value, moves erratically |
+| Multi | Purple | 15 | Three circles, splits into 3 smaller balloons |
+| Mystery | Orange | Variable | Question mark, 50/50 chance of bonus or bomb |
+| Speed | Green | 25 | Lightning bolt, moves quickly across screen |
 
 ## Power-Ups
 
-- **Slow Motion** 🐌: Activated when pulling bow fully back (2 seconds)
-- **Multi-Arrow** 🏹: Shoot 3 arrows in a spread pattern (10 seconds)
-- **Auto-Shield** 🛡️: Automatically blocks the next bomb hit (one-time use)
-- **Explosive Arrow** 💥: Pops all balloons in a radius (5 seconds)
+- **Slow Motion**: Activated when pulling bow fully back (2 seconds)
+- **Multi-Arrow**: Shoot 3 arrows in a spread pattern (10 seconds)
+- **Auto-Shield**: Automatically blocks the next bomb hit (one-time use)
+- **Explosive Arrow**: Pops all balloons in a radius (5 seconds)
 
 ## Project Structure
 
@@ -189,9 +190,23 @@ Potential features for future versions:
 - [ ] Sound effects and background music
 - [ ] iCloud sync for progress
 
+## Visual Assets
+
+All visual elements are **programmatically generated** - no external image assets required:
+
+- **Balloon Graphics**: Each balloon type has custom-drawn symbols (skull for bombs, shield icon, stars, lightning bolts, etc.)
+- **Particle Effects**: Programmatically generated radial gradient textures for particle systems
+- **UI Elements**: All buttons, icons, and interface elements drawn using SKShapeNode
+- **Animations**: Smooth transitions, floating effects, and rotations all done in code
+
+This approach provides several benefits:
+- No asset management required
+- Scalable graphics at any resolution
+- Easy to customize colors and styles
+- Smaller app bundle size
+
 ## Known Limitations
 
-- **Particle Textures**: The game references a "spark" particle texture that needs to be created as an actual image file. Currently uses a placeholder.
 - **Audio**: Sound effects are not implemented (AudioManager is a stub)
 - **Game Center**: Leaderboard integration not yet implemented
 - **Social Sharing**: Share functionality shows a placeholder message
@@ -228,9 +243,9 @@ This project is available for educational and personal use. Please check with th
 2. Select a game mode (Arcade recommended for beginners)
 3. Touch and drag to aim the bow
 4. Release to shoot arrows at balloons
-5. Pop regular balloons (🎈) for points
-6. Avoid hitting bomb balloons (💣) or they'll drop bombs
-7. Collect shield balloons (🛡️) for protection
+5. Pop regular balloons (red with shine) for points
+6. Avoid hitting bomb balloons (gray with skull) or they'll drop bombs
+7. Collect shield balloons (blue with shield icon) for protection
 8. Chain hits for combo multipliers
 9. Complete waves to progress in difficulty
 

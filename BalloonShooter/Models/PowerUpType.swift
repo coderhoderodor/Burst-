@@ -22,15 +22,6 @@ enum PowerUpType {
         }
     }
 
-    var icon: String {
-        switch self {
-        case .slowMotion: return "🐌"
-        case .multiArrow: return "🏹"
-        case .autoShield: return "🛡️"
-        case .explosiveArrow: return "💥"
-        }
-    }
-
     var displayName: String {
         switch self {
         case .slowMotion: return "Slow Motion"

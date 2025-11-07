@@ -152,11 +152,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pauseButton.zPosition = 100
         addChild(pauseButton)
 
-        let pauseLabel = SKLabelNode(text: "⏸")
-        pauseLabel.fontSize = 24
-        pauseLabel.position = CGPoint(x: 20, y: 10)
-        pauseLabel.verticalAlignmentMode = .center
-        pauseButton.addChild(pauseLabel)
+        // Add pause bars
+        let bar1 = SKShapeNode(rect: CGRect(x: 12, y: 12, width: 5, height: 16))
+        bar1.fillColor = .white
+        bar1.strokeColor = .clear
+        pauseButton.addChild(bar1)
+
+        let bar2 = SKShapeNode(rect: CGRect(x: 23, y: 12, width: 5, height: 16))
+        bar2.fillColor = .white
+        bar2.strokeColor = .clear
+        pauseButton.addChild(bar2)
 
         updateUI()
     }
@@ -173,8 +178,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.text = "Score: \(gameManager.score)"
 
         // Lives display
-        let heartsText = String(repeating: "❤️", count: max(0, gameManager.lives))
-        livesLabel.text = heartsText
+        if gameManager.currentMode == .precision, let arrowsRemaining = gameManager.arrowsRemaining {
+            // Arrows remaining for Precision mode
+            livesLabel.text = "Arrows: \(arrowsRemaining)"
+        } else {
+            // Hearts for lives
+            livesLabel.text = "Lives: \(max(0, gameManager.lives))"
+        }
 
         waveLabel.text = "Wave \(gameManager.currentWave)"
 
@@ -189,17 +199,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Time display for Time Attack mode
         if gameManager.currentMode == .timeAttack, let timeLimit = gameManager.currentMode.timeLimit {
             let remaining = max(0, timeLimit - gameTime)
-            waveLabel.text = String(format: "⏱ %.0f", remaining)
-        }
-
-        // Arrows remaining for Precision mode
-        if let arrowsRemaining = gameManager.arrowsRemaining {
-            livesLabel.text = "🏹 \(arrowsRemaining)"
+            waveLabel.text = String(format: "Time: %.0fs", remaining)
         }
 
         // Shield indicator
         if gameManager.hasShield {
-            let shieldLabel = SKLabelNode(text: "🛡️ SHIELD")
+            let shieldLabel = SKLabelNode(text: "SHIELD ACTIVE")
             shieldLabel.fontSize = 20
             shieldLabel.fontColor = .cyan
             shieldLabel.position = CGPoint(x: size.width / 2, y: 150)
