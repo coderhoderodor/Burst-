@@ -79,9 +79,9 @@ class GameManager {
 
     // Waves
     func completeWave() {
-        currentWave += 1
         let waveBonus = currentWave * 50
         addScore(waveBonus)
+        currentWave += 1
 
         // Regenerate life every 3 waves in arcade mode
         if currentMode == .arcade && currentWave % 3 == 0 {

@@ -38,7 +38,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var gameTime: TimeInterval = 0
     private var nextBalloonSpawnTime: TimeInterval = 0
     private var balloonsInCurrentWave: Int = 0
-    private var isPaused: Bool = false
+    private var isGamePaused: Bool = false
 
     // Statistics
     private var arrowsShot: Int = 0
@@ -228,7 +228,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
 
-        if isPaused { return }
+        if isGamePaused { return }
 
         // Start drawing bow
         touchStartPoint = location
@@ -237,7 +237,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first, let startPoint = touchStartPoint else { return }
-        if isPaused { return }
+        if isGamePaused { return }
 
         let currentPoint = touch.location(in: self)
         let bowPosition = bow.position
@@ -268,7 +268,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first, touchStartPoint != nil else { return }
-        if isPaused { return }
+        if isGamePaused { return }
 
         let currentPoint = touch.location(in: self)
         let bowPosition = bow.position
@@ -394,14 +394,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else if random < 0.15 {
                 return .speed
             } else if random < 0.20 {
-                return .mystery
+                // Mystery balloon excluded in Time Attack (can drop bombs)
+                if gameManager.currentMode != .timeAttack {
+                    return .mystery
+                }
             } else if random < 0.25 {
                 return .multi
             }
         }
 
-        // Bomb balloon ratio
-        if random < gameManager.bombBalloonRatio {
+        // Bomb balloon ratio (excluded in Time Attack mode)
+        if gameManager.currentMode != .timeAttack && random < gameManager.bombBalloonRatio {
             return .bomb
         }
 
@@ -409,7 +412,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override func update(_ currentTime: TimeInterval) {
-        if isPaused { return }
+        if isGamePaused { return }
 
         // Delta time
         let deltaTime = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
@@ -437,10 +440,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for arrow in arrows {
             arrow.update(deltaTime: deltaTime)
 
-            // Remove if off screen
+            // Remove if off screen (missed shot)
             if arrow.position.y > size.height + 50 || arrow.position.y < -50 ||
                arrow.position.x < -50 || arrow.position.x > size.width + 50 {
                 arrow.removeFromParent()
+                // Reset combo on missed shot
+                gameManager.resetCombo()
             }
         }
         arrows.removeAll { $0.parent == nil }
@@ -463,6 +468,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     self.shakeScreen()
                 }
 
+                // Reset combo when bomb damages player
+                gameManager.resetCombo()
                 let gameIsOver = gameManager.loseLife()
                 updateUI()
 
@@ -500,6 +507,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let balloon = balloon, let arrow = arrow else { return }
 
         arrowsHit += 1
+        gameManager.balloonsPopped += 1
         gameManager.incrementCombo()
         audioManager.playSound(.balloonPop)
         audioManager.playHaptic(.medium)
@@ -616,9 +624,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func togglePause() {
-        isPaused.toggle()
+        isGamePaused.toggle()
+        self.isPaused = isGamePaused
 
-        if isPaused {
+        if isGamePaused {
+            // Reset combo when pausing
+            gameManager.resetCombo()
             // Show pause menu
             showPauseMenu()
         } else {
