@@ -11,21 +11,32 @@ import GameplayKit
 
 class GameViewController: UIViewController {
 
+    override func loadView() {
+        self.view = SKView()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
         // Create the view
         if let view = self.view as! SKView? {
-            // Create and configure the scene
-            let scene = MenuScene(size: view.bounds.size)
-            scene.scaleMode = .aspectFill
-
-            // Present the scene
-            view.presentScene(scene)
-
-            view.ignoresSiblingOrder = true
-            view.showsFPS = true
-            view.showsNodeCount = true
+            // Only present if scene is not already presented
+            if view.scene == nil {
+                // Create and configure the scene
+                let scene = MenuScene(size: view.bounds.size)
+                scene.scaleMode = .aspectFill
+                
+                // Present the scene
+                view.presentScene(scene)
+                
+                view.ignoresSiblingOrder = true
+                view.showsFPS = true
+                view.showsNodeCount = true
+            }
         }
     }
 

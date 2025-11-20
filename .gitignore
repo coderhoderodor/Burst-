@@ -91,3 +91,9 @@ iOSInjectionProject/
 
 # macOS
 .DS_Store
+
+# Backup files
+*.backup
+
+# Xcode workspace
+*.xcworkspace
