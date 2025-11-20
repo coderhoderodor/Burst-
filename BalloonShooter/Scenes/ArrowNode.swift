@@ -13,31 +13,52 @@ class ArrowNode: SKShapeNode {
     init(from position: CGPoint, angle: CGFloat, power: CGFloat) {
         super.init()
 
-        // Create arrow shape
+        // Create arrow shape (1.8x longer)
         let arrowPath = UIBezierPath()
-        arrowPath.move(to: CGPoint(x: -5, y: 0))
-        arrowPath.addLine(to: CGPoint(x: 20, y: 0))
-        arrowPath.move(to: CGPoint(x: 20, y: 0))
-        arrowPath.addLine(to: CGPoint(x: 15, y: -5))
-        arrowPath.move(to: CGPoint(x: 20, y: 0))
-        arrowPath.addLine(to: CGPoint(x: 15, y: 5))
+        
+        // Shaft
+        arrowPath.move(to: CGPoint(x: -36, y: 0))
+        arrowPath.addLine(to: CGPoint(x: 36, y: 0))
+        
+        // Head
+        arrowPath.move(to: CGPoint(x: 36, y: 0))
+        arrowPath.addLine(to: CGPoint(x: 27, y: -5))
+        arrowPath.addLine(to: CGPoint(x: 45, y: 0))
+        arrowPath.addLine(to: CGPoint(x: 27, y: 5))
+        arrowPath.close()
+        
+        // Fletching (Feathers)
+        arrowPath.move(to: CGPoint(x: -36, y: 0))
+        arrowPath.addLine(to: CGPoint(x: -45, y: -5))
+        arrowPath.move(to: CGPoint(x: -36, y: 0))
+        arrowPath.addLine(to: CGPoint(x: -45, y: 5))
+        
+        arrowPath.move(to: CGPoint(x: -27, y: 0))
+        arrowPath.addLine(to: CGPoint(x: -36, y: -5))
+        arrowPath.move(to: CGPoint(x: -27, y: 0))
+        arrowPath.addLine(to: CGPoint(x: -36, y: 5))
 
         self.path = arrowPath.cgPath
-        self.strokeColor = .brown
-        self.lineWidth = 3
+        self.strokeColor = UIColor(red: 0.6, green: 0.4, blue: 0.2, alpha: 1.0) // Wood color
+        self.lineWidth = 2
+        self.fillColor = .gray // For the head
         self.position = position
         self.zRotation = angle
 
         // Calculate velocity based on angle and power
-        let speed = power * 15.0
+        // Increased multiplier to 3000.0 for very fast flight
+        let speed = power * 3000.0
         let vx = cos(angle) * speed
         let vy = sin(angle) * speed
         self.velocity = CGVector(dx: vx, dy: vy)
 
-        // Physics body
-        self.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 25, height: 5))
+        // Physics body (also scaled)
+        self.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 45, height: 5))
         self.physicsBody?.isDynamic = true
         self.physicsBody?.affectedByGravity = true
+        self.physicsBody?.mass = 0.01 // Very light
+        self.physicsBody?.friction = 0.2
+        self.physicsBody?.linearDamping = 0.0 // No drag
         self.physicsBody?.categoryBitMask = PhysicsCategory.arrow
         self.physicsBody?.contactTestBitMask = PhysicsCategory.balloon
         self.physicsBody?.collisionBitMask = 0

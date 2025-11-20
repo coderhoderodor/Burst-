@@ -3,6 +3,7 @@
 //  BalloonShooter
 //
 //  Created by Claude on 11/5/25.
+//  Redesigned on 11/20/25 - Modern Simplistic UI
 //
 
 import SpriteKit
@@ -15,120 +16,157 @@ class SettingsScene: SKScene {
         setupBackground()
         setupTitle()
         setupSettings()
+        setupStatsButton()
         setupBackButton()
     }
 
     private func setupBackground() {
-        let background = SKShapeNode(rect: self.frame)
-        background.fillColor = UIColor(red: 0.3, green: 0.3, blue: 0.4, alpha: 1.0)
-        background.strokeColor = .clear
-        background.zPosition = -10
-        addChild(background)
+        // Consistent gradient background
+        let gradient = DesignSystem.createGradientBackground(size: self.size)
+        gradient.zPosition = -10
+        addChild(gradient)
     }
 
     private func setupTitle() {
         let title = SKLabelNode(text: "Settings")
-        title.fontSize = 48
-        title.fontName = "Arial-BoldMT"
+        title.fontName = DesignSystem.Typography.titleFont
+        title.fontSize = DesignSystem.Typography.titleSize
         title.fontColor = .white
         title.position = CGPoint(x: size.width / 2, y: size.height - 100)
         addChild(title)
+
+        // Add text stroke
+        let stroke = SKLabelNode(text: "Settings")
+        stroke.fontName = DesignSystem.Typography.titleFont
+        stroke.fontSize = DesignSystem.Typography.titleSize
+        stroke.fontColor = DesignSystem.Colors.textStroke
+        stroke.position = CGPoint(x: 0, y: -3)
+        stroke.zPosition = -1
+        title.addChild(stroke)
     }
 
     private func setupSettings() {
+        let centerX = size.width / 2
         var yPos = size.height - 200
 
-        // Sound Effects
+        // Settings card container
+        let cardWidth: CGFloat = min(350, size.width - 40)
+        let cardHeight: CGFloat = 260
+
+        let card = DesignSystem.createCard(width: cardWidth, height: cardHeight)
+        card.position = CGPoint(x: centerX, y: yPos - cardHeight/2)
+        card.fillColor = UIColor(white: 1.0, alpha: 0.3)
+        addChild(card)
+
+        yPos -= 40
+
+        // Sound Effects toggle
+        addToggleSetting(
+            title: "Sound Effects",
+            key: "sound",
+            value: dataManager.soundEnabled,
+            at: yPos,
+            width: cardWidth
+        )
+
         yPos -= 80
-        addToggleSetting(title: "Sound Effects", key: "sound", value: dataManager.soundEnabled, at: yPos)
 
-        // Music
+        // Music toggle
+        addToggleSetting(
+            title: "Music",
+            key: "music",
+            value: dataManager.musicEnabled,
+            at: yPos,
+            width: cardWidth
+        )
+
         yPos -= 80
-        addToggleSetting(title: "Music", key: "music", value: dataManager.musicEnabled, at: yPos)
 
-        // Haptics
-        yPos -= 80
-        addToggleSetting(title: "Haptic Feedback", key: "haptics", value: dataManager.hapticsEnabled, at: yPos)
-
-        // Statistics section
-        yPos -= 120
-        let statsTitle = SKLabelNode(text: "Statistics")
-        statsTitle.fontSize = 32
-        statsTitle.fontName = "Arial-BoldMT"
-        statsTitle.fontColor = .yellow
-        statsTitle.position = CGPoint(x: size.width / 2, y: yPos)
-        addChild(statsTitle)
-
-        yPos -= 50
-        let totalPopped = SKLabelNode(text: "Total Balloons Popped: \(dataManager.totalBalloonsPopped)")
-        totalPopped.fontSize = 18
-        totalPopped.fontColor = .white
-        totalPopped.position = CGPoint(x: size.width / 2, y: yPos)
-        addChild(totalPopped)
-
-        yPos -= 35
-        let bestWave = SKLabelNode(text: "Best Wave: \(dataManager.bestWave)")
-        bestWave.fontSize = 18
-        bestWave.fontColor = .white
-        bestWave.position = CGPoint(x: size.width / 2, y: yPos)
-        addChild(bestWave)
-
-        yPos -= 35
-        let accuracy = Int(dataManager.bestAccuracy * 100)
-        let bestAccuracy = SKLabelNode(text: "Best Accuracy: \(accuracy)%")
-        bestAccuracy.fontSize = 18
-        bestAccuracy.fontColor = .white
-        bestAccuracy.position = CGPoint(x: size.width / 2, y: yPos)
-        addChild(bestAccuracy)
+        // Haptics toggle
+        addToggleSetting(
+            title: "Haptic Feedback",
+            key: "haptics",
+            value: dataManager.hapticsEnabled,
+            at: yPos,
+            width: cardWidth
+        )
     }
 
-    private func addToggleSetting(title: String, key: String, value: Bool, at yPos: CGFloat) {
+    private func addToggleSetting(title: String, key: String, value: Bool, at yPos: CGFloat, width: CGFloat) {
         let container = SKNode()
         container.position = CGPoint(x: size.width / 2, y: yPos)
         container.name = "toggle_\(key)"
 
+        // Label
         let label = SKLabelNode(text: title)
-        label.fontSize = 24
-        label.fontName = "Arial"
+        label.fontName = DesignSystem.Typography.titleFont
+        label.fontSize = DesignSystem.Typography.bodySize
         label.fontColor = .white
         label.horizontalAlignmentMode = .left
-        label.position = CGPoint(x: -120, y: -8)
+        label.verticalAlignmentMode = .center
+        label.position = CGPoint(x: -width/2 + 30, y: 0)
         container.addChild(label)
 
-        let toggle = createToggle(enabled: value)
-        toggle.position = CGPoint(x: 100, y: 0)
+        // Toggle switch
+        let toggle = createModernToggle(enabled: value)
+        toggle.position = CGPoint(x: width/2 - 60, y: 0)
         toggle.name = "toggleSwitch"
         container.addChild(toggle)
 
         addChild(container)
     }
 
-    private func createToggle(enabled: Bool) -> SKNode {
+    private func createModernToggle(enabled: Bool) -> SKNode {
         let container = SKNode()
 
-        let background = SKShapeNode(rect: CGRect(x: -30, y: -15, width: 60, height: 30), cornerRadius: 15)
-        background.fillColor = enabled ? .green : .gray
-        background.strokeColor = .white
-        background.lineWidth = 2
-        background.name = "toggleBackground"
-        container.addChild(background)
+        // Track (background)
+        let trackWidth: CGFloat = 70
+        let trackHeight: CGFloat = 36
+        let track = SKShapeNode(rect: CGRect(x: -trackWidth/2, y: -trackHeight/2, width: trackWidth, height: trackHeight), cornerRadius: trackHeight/2)
+        track.fillColor = enabled ? DesignSystem.Colors.success : UIColor.gray.withAlphaComponent(0.5)
+        track.strokeColor = .white
+        track.lineWidth = 2
+        track.name = "toggleTrack"
+        container.addChild(track)
 
-        let knob = SKShapeNode(circleOfRadius: 12)
+        // Knob
+        let knobRadius: CGFloat = 14
+        let knob = SKShapeNode(circleOfRadius: knobRadius)
         knob.fillColor = .white
         knob.strokeColor = .clear
-        knob.position = CGPoint(x: enabled ? 15 : -15, y: 0)
+        knob.position = CGPoint(x: enabled ? trackWidth/2 - 20 : -trackWidth/2 + 20, y: 0)
         knob.name = "toggleKnob"
+
+        // Add subtle glow effect
+        knob.glowWidth = 1
+
         container.addChild(knob)
 
         return container
     }
 
+    private func setupStatsButton() {
+        // Link to dedicated stats scene
+        let statsButton = DesignSystem.createButton(
+            title: "View Statistics",
+            width: min(300, size.width - 80),
+            height: 60,
+            style: .secondary
+        )
+        statsButton.position = CGPoint(x: size.width / 2, y: 200)
+        statsButton.name = "statsButton"
+        addChild(statsButton)
+    }
+
     private func setupBackButton() {
-        let backButton = SKLabelNode(text: "← Back")
-        backButton.fontSize = 28
-        backButton.fontName = "Arial-BoldMT"
-        backButton.fontColor = .white
-        backButton.position = CGPoint(x: 80, y: 50)
+        // Modern back button
+        let backButton = DesignSystem.createButton(
+            title: "Back",
+            width: 120,
+            height: 50,
+            style: .icon
+        )
+        backButton.position = CGPoint(x: 80, y: 60)
         backButton.name = "backButton"
         addChild(backButton)
     }
@@ -140,18 +178,31 @@ class SettingsScene: SKScene {
 
         for node in touchedNodes {
             if let name = node.name {
-                if name == "backButton" {
-                    goBack()
-                } else if name.hasPrefix("toggle_") {
-                    let key = name.replacingOccurrences(of: "toggle_", with: "")
-                    toggleSetting(key: key, node: node)
-                }
+                handleTouch(name: name, node: node)
             } else if let parent = node.parent, let parentName = parent.name {
-                if parentName.hasPrefix("toggle_") {
-                    let key = parentName.replacingOccurrences(of: "toggle_", with: "")
-                    toggleSetting(key: key, node: parent)
-                }
+                handleTouch(name: parentName, node: parent)
             }
+        }
+    }
+
+    private func handleTouch(name: String, node: SKNode) {
+        // Button press animation
+        let press = SKAction.scale(to: 0.95, duration: 0.1)
+        let release = SKAction.scale(to: 1.0, duration: 0.1)
+
+        if name == "backButton" {
+            node.run(SKAction.sequence([press, release]))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.goBack()
+            }
+        } else if name == "statsButton" {
+            node.run(SKAction.sequence([press, release]))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.showStats()
+            }
+        } else if name.hasPrefix("toggle_") {
+            let key = name.replacingOccurrences(of: "toggle_", with: "")
+            toggleSetting(key: key, node: node)
         }
     }
 
@@ -172,15 +223,31 @@ class SettingsScene: SKScene {
     }
 
     private func updateToggleVisual(node: SKNode, enabled: Bool) {
-        if let toggleSwitch = node.childNode(withName: "toggleSwitch") {
-            if let background = toggleSwitch.childNode(withName: "toggleBackground") as? SKShapeNode {
-                background.fillColor = enabled ? .green : .gray
+        guard let toggleSwitch = node.childNode(withName: "toggleSwitch") else { return }
+
+        // Update track color
+        if let track = toggleSwitch.childNode(withName: "toggleTrack") as? SKShapeNode {
+            let colorChange = SKAction.run {
+                track.fillColor = enabled ? DesignSystem.Colors.success : UIColor.gray.withAlphaComponent(0.5)
             }
-            if let knob = toggleSwitch.childNode(withName: "toggleKnob") {
-                let moveAction = SKAction.moveTo(x: enabled ? 15 : -15, duration: 0.2)
-                knob.run(moveAction)
-            }
+            track.run(colorChange)
         }
+
+        // Animate knob position
+        if let knob = toggleSwitch.childNode(withName: "toggleKnob") {
+            let newX = enabled ? 15.0 : -15.0
+            let moveAction = SKAction.moveTo(x: newX, duration: 0.2)
+            moveAction.timingMode = .easeInEaseOut
+            knob.run(moveAction)
+        }
+    }
+
+    private func showStats() {
+        let statsScene = StatsScene(size: self.size)
+        statsScene.scaleMode = .aspectFill
+
+        let transition = SKTransition.push(with: .left, duration: 0.3)
+        view?.presentScene(statsScene, transition: transition)
     }
 
     private func goBack() {

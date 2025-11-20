@@ -57,4 +57,17 @@ enum GameMode {
         default: return nil
         }
     }
+
+    var icon: String {
+        switch self {
+        case .arcade:
+            return "A"
+        case .timeAttack:
+            return "T"
+        case .precision:
+            return "P"
+        case .survival:
+            return "S"
+        }
+    }
 }
