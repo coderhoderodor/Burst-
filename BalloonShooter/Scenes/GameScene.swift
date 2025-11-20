@@ -24,8 +24,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var powerUpLabels: [PowerUpType: SKLabelNode] = [:]
 
     // Game elements
-    private var bow: SKShapeNode!
-    private var arrow: SKShapeNode!
+    // Game elements
+    private var bowNode: SKNode!
+    private var bowBody: SKShapeNode!
+    private var bowString: SKShapeNode!
+    private var arrow: ArrowNode? // Changed to ArrowNode type and optional
     private var trajectoryLine: SKShapeNode?
     private var player: SKNode!
 
@@ -38,7 +41,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var gameTime: TimeInterval = 0
     private var nextBalloonSpawnTime: TimeInterval = 0
     private var balloonsInCurrentWave: Int = 0
-    private var isPaused: Bool = false
+    private var isGamePaused: Bool = false
 
     // Statistics
     private var arrowsShot: Int = 0
@@ -81,29 +84,74 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func setupBow() {
-        // Create bow at bottom center
+        // Create container for bow
+        bowNode = SKNode()
+        bowNode.position = CGPoint(x: size.width / 2, y: 100)
+        addChild(bowNode)
+        
+        // Create Bow Body (The wood part)
         let bowPath = UIBezierPath()
-        bowPath.move(to: CGPoint(x: -30, y: -10))
-        bowPath.addQuadCurve(to: CGPoint(x: -30, y: 10), controlPoint: CGPoint(x: -40, y: 0))
-        bowPath.move(to: CGPoint(x: 30, y: -10))
-        bowPath.addQuadCurve(to: CGPoint(x: 30, y: 10), controlPoint: CGPoint(x: 40, y: 0))
-
-        bow = SKShapeNode(path: bowPath.cgPath)
-        bow.strokeColor = .brown
-        bow.lineWidth = 4
-        bow.position = CGPoint(x: size.width / 2, y: 100)
-        addChild(bow)
-
-        // Create arrow (initially hidden)
-        let arrowPath = UIBezierPath()
-        arrowPath.move(to: CGPoint(x: 0, y: 0))
-        arrowPath.addLine(to: CGPoint(x: 0, y: 40))
-
-        arrow = SKShapeNode(path: arrowPath.cgPath)
-        arrow.strokeColor = .brown
-        arrow.lineWidth = 3
-        arrow.isHidden = true
-        bow.addChild(arrow)
+        bowPath.move(to: CGPoint(x: -40, y: 0))
+        bowPath.addQuadCurve(to: CGPoint(x: 40, y: 0), controlPoint: CGPoint(x: 0, y: 40))
+        
+        bowBody = SKShapeNode(path: bowPath.cgPath)
+        bowBody.strokeColor = UIColor(red: 0.6, green: 0.4, blue: 0.2, alpha: 1.0) // Wood color
+        bowBody.lineWidth = 5
+        bowBody.lineCap = .round
+        bowNode.addChild(bowBody)
+        
+        // Create Bow String (Dynamic part)
+        bowString = SKShapeNode()
+        bowString.strokeColor = .white
+        bowString.lineWidth = 2
+        bowNode.addChild(bowString)
+        
+        updateBowString(pullAmount: 0)
+    }
+    
+    private func updateBowString(pullAmount: CGFloat) {
+        // 1. Update Bow Body (Bending Effect)
+        // As we pull, the tips should move slightly inwards and follow the pull direction
+        let maxBend: CGFloat = 10.0
+        let bendFactor = min(pullAmount / 100.0, 1.0) // 0.0 to 1.0
+        let tipOffset = maxBend * bendFactor
+        
+        let bowPath = UIBezierPath()
+        // Left tip moves right and down (towards pull)
+        let leftTip = CGPoint(x: -40 + tipOffset, y: -tipOffset)
+        // Right tip moves left and down
+        let rightTip = CGPoint(x: 40 - tipOffset, y: -tipOffset)
+        
+        bowPath.move(to: leftTip)
+        // Control point stays roughly same but maybe moves down slightly less
+        bowPath.addQuadCurve(to: rightTip, controlPoint: CGPoint(x: 0, y: 40 - tipOffset * 0.5))
+        
+        bowBody.path = bowPath.cgPath
+        
+        // 2. Update Bow String
+        let stringPath = UIBezierPath()
+        stringPath.move(to: leftTip)
+        stringPath.addLine(to: CGPoint(x: 0, y: -pullAmount))
+        stringPath.addLine(to: rightTip)
+        bowString.path = stringPath.cgPath
+    }
+    
+    private func animateStringRelease() {
+        let action = SKAction.customAction(withDuration: 0.3) { [weak self] node, elapsedTime in
+            guard let self = self else { return }
+            
+            // Damped oscillation
+            let t = CGFloat(elapsedTime / 0.3)
+            let amplitude: CGFloat = 20.0
+            let decay = exp(-5 * t)
+            let oscillation = amplitude * decay * cos(20 * t)
+            
+            // The string vibrates around 0
+            self.updateBowString(pullAmount: oscillation)
+        }
+        bowNode.run(action) { [weak self] in
+            self?.updateBowString(pullAmount: 0)
+        }
     }
 
     private func setupUI() {
@@ -228,37 +276,96 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
 
-        if isPaused { return }
+        // Handle pause menu button touches
+        if isGamePaused {
+            let touchedNode = atPoint(location)
+
+            if touchedNode.name == "resumeButton" {
+                togglePause()
+                return
+            }
+
+            if touchedNode.name == "menuButton" {
+                // Return to main menu
+                let menuScene = MenuScene(size: self.size)
+                menuScene.scaleMode = .aspectFill
+                let transition = SKTransition.fade(withDuration: 0.5)
+                view?.presentScene(menuScene, transition: transition)
+                return
+            }
+
+            return // Consume any other touches while paused
+        }
 
         // Start drawing bow
         touchStartPoint = location
-        arrow.isHidden = false
+
+        // Create a preview arrow on the bow
+        arrow?.removeFromParent()
+        arrow = ArrowNode(from: .zero, angle: 0, power: 0)
+        // Initial position: Tail on string. String is at 0. Tail is at -45 relative to center.
+        // So Center should be at +45.
+        arrow?.position = CGPoint(x: 0, y: 45)
+        arrow?.zRotation = CGFloat.pi / 2 // Point up relative to bow (forward)
+        // Disable physics for preview arrow (it should only move with the bow, not fall)
+        arrow?.physicsBody?.isDynamic = false
+        bowNode.addChild(arrow!)
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first, let startPoint = touchStartPoint else { return }
-        if isPaused { return }
+        if isGamePaused { return }
 
         let currentPoint = touch.location(in: self)
-        let bowPosition = bow.position
-
+        
         // Calculate pull vector
-        let dx = bowPosition.x - currentPoint.x
-        let dy = bowPosition.y - currentPoint.y
+        let dx = startPoint.x - currentPoint.x
+        let dy = startPoint.y - currentPoint.y
         let distance = sqrt(dx * dx + dy * dy)
-        let maxPullDistance: CGFloat = 150
-
+        // Max pull distance based on arrow length (90). Tip is at +45.
+        // We want tip to stay in front of bow (0).
+        // Arrow Center = 45 - pull. Tip = 90 - pull.
+        // 90 - pull > 30 (margin) => pull < 60.
+        let maxPullDistance: CGFloat = 60
+        
         // Limit pull distance
         let pullDistance = min(distance, maxPullDistance)
-        let angle = atan2(dy, dx)
+        
+        // Calculate aiming angle (from bow center to touch point)
+        // We want the bow to point towards where we are dragging FROM (opposite to pull)
+        // Actually, standard mechanics: drag back to shoot forward.
+        // So we aim based on the drag vector relative to the bow?
+        // Let's keep it simple: Dragging anywhere on screen controls the bow angle and power.
+        
+        // Angle from bow to current touch
+        let angleToTouch = atan2(currentPoint.y - bowNode.position.y, currentPoint.x - bowNode.position.x)
+        
+        // We want to shoot in the OPPOSITE direction of the drag if we are dragging "back"
+        // But usually in these games, you touch and drag back.
+        // Let's rotate the bow to point towards the finger, but the arrow points opposite?
+        // No, let's make the bow follow the finger angle relative to the bow position.
+        
+        let angle = atan2(currentPoint.y - bowNode.position.y, currentPoint.x - bowNode.position.x)
+        // Rotate bow to face the touch point (or opposite?)
+        // If I drag down-left, I want to shoot up-right.
+        // So the bow should face up-right.
+        
+        let shootAngle = angle + CGFloat.pi
+        bowNode.zRotation = shootAngle - CGFloat.pi / 2 // Adjust for bow's default orientation (up)
 
-        // Update arrow rotation and scale
-        arrow.zRotation = angle - .pi / 2
-        let scale = pullDistance / 50.0
-        arrow.setScale(scale)
-
-        // Show trajectory line
-        showTrajectory(from: bowPosition, angle: angle, power: pullDistance / maxPullDistance)
+        // Update bow string
+        updateBowString(pullAmount: pullDistance)
+        
+        // Update arrow position on the string
+        // Arrow length is ~90. Center is 0. Tail is at -45.
+        // We want tail (-45) to be at string position (-pullDistance).
+        // So Center = -pullDistance + 45.
+        arrow?.position = CGPoint(x: 0, y: -pullDistance + 45)
+        
+        // Show trajectory
+        // Global angle for trajectory
+        let globalAngle = shootAngle
+        showTrajectory(from: bowNode.position, angle: globalAngle, power: pullDistance / maxPullDistance)
 
         // Slow motion effect when fully pulled
         if pullDistance >= maxPullDistance * 0.9 && !gameManager.hasPowerUp(.slowMotion) {
@@ -267,32 +374,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, touchStartPoint != nil else { return }
-        if isPaused { return }
+        guard let touch = touches.first, let startPoint = touchStartPoint else { return }
+        if isGamePaused { return }
 
         let currentPoint = touch.location(in: self)
-        let bowPosition = bow.position
-
-        // Calculate shoot vector
-        let dx = bowPosition.x - currentPoint.x
-        let dy = bowPosition.y - currentPoint.y
+        
+        // Calculate pull
+        let dx = startPoint.x - currentPoint.x
+        let dy = startPoint.y - currentPoint.y
         let distance = sqrt(dx * dx + dy * dy)
-        let maxPullDistance: CGFloat = 150
-
+        let maxPullDistance: CGFloat = 60
         let pullDistance = min(distance, maxPullDistance)
-        let angle = atan2(dy, dx)
         let power = pullDistance / maxPullDistance
+        
+        // Calculate angle
+        let angle = atan2(currentPoint.y - bowNode.position.y, currentPoint.x - bowNode.position.x)
+        let shootAngle = angle + CGFloat.pi
 
         // Shoot arrow
         if power > 0.1 {
-            shootArrow(from: bowPosition, angle: angle, power: power)
+            shootArrow(from: bowNode.position, angle: shootAngle, power: power)
         }
 
         // Reset
-        arrow.isHidden = true
+        arrow?.removeFromParent()
+        arrow = nil
+        // Animate release instead of instant reset
+        animateStringRelease()
         touchStartPoint = nil
         trajectoryLine?.removeFromParent()
         trajectoryLine = nil
+        
+        // Reset bow rotation (optional, smooth return?)
+        let rotateBack = SKAction.rotate(toAngle: 0, duration: 0.2)
+        bowNode.run(rotateBack)
     }
 
     private func showTrajectory(from position: CGPoint, angle: CGFloat, power: CGFloat) {
@@ -304,7 +419,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Simulate trajectory
         let segments = 20
         let timeStep: CGFloat = 0.1
-        let speed = power * 15.0
+        let speed = power * 3000.0 // Match arrow speed
         var vx = cos(angle) * speed
         var vy = sin(angle) * speed
         var x: CGFloat = 0
@@ -365,15 +480,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Determine balloon type based on wave and mode
         let type = selectBalloonType()
 
-        // Random position at top
-        let margin: CGFloat = 50
-        let x = CGFloat.random(in: margin...(size.width - margin))
-        let y = size.height - 100
+        // Randomly choose left or right side (50/50)
+        let fromLeft = Bool.random()
 
-        let balloon = BalloonNode(type: type, at: CGPoint(x: x, y: y))
+        // Random vertical position
+        let margin: CGFloat = 80
+        let startY = CGFloat.random(in: margin...(size.height - margin))
+
+        // Start position: off-screen left or right
+        let startX: CGFloat = fromLeft ? -100 : size.width + 100
+        let targetX: CGFloat = fromLeft ? size.width + 100 : -100
+
+        let balloon = BalloonNode(type: type, at: CGPoint(x: startX, y: startY))
         addChild(balloon)
         balloons.append(balloon)
         balloonsInCurrentWave += 1
+
+        // Animate balloon floating horizontally across screen
+        let floatDuration: TimeInterval = 3.5
+        let moveHorizontalAction = SKAction.moveBy(x: targetX - startX, y: 0, duration: floatDuration)
+        moveHorizontalAction.timingMode = .easeOut
+
+        // Add vertical bobbing motion
+        let swayDistance: CGFloat = 25
+        let swayDuration: TimeInterval = 2.0
+        let swayUp = SKAction.moveBy(x: 0, y: swayDistance, duration: swayDuration)
+        swayUp.timingMode = .easeInEaseOut
+        let swayDown = SKAction.moveBy(x: 0, y: -swayDistance, duration: swayDuration)
+        swayDown.timingMode = .easeInEaseOut
+        let swaySequence = SKAction.sequence([swayUp, swayDown])
+        let swayForever = SKAction.repeatForever(swaySequence)
+
+        // Run both actions simultaneously
+        balloon.run(moveHorizontalAction)
+        balloon.run(swayForever, withKey: "sway")
     }
 
     private func selectBalloonType() -> BalloonType {
@@ -409,7 +549,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override func update(_ currentTime: TimeInterval) {
-        if isPaused { return }
+        if isGamePaused { return }
 
         // Delta time
         let deltaTime = lastUpdateTime == 0 ? 0 : currentTime - lastUpdateTime
@@ -430,7 +570,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Spawn balloons
         if currentTime >= nextBalloonSpawnTime {
             spawnBalloon()
-            nextBalloonSpawnTime = currentTime + Double.random(in: 1.0...2.0)
+            // Faster spawn rate: 0.6 to 1.2 seconds (instead of 1.0 to 2.0)
+            // This increases spawn frequency by ~40%
+            nextBalloonSpawnTime = currentTime + Double.random(in: 0.6...1.2)
         }
 
         // Update arrows
@@ -445,11 +587,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         arrows.removeAll { $0.parent == nil }
 
-        // Update balloons (movement for speed type)
+        // Update balloons (check if they've exited the screen)
         for balloon in balloons {
-            // Keep balloons in bounds
-            if balloon.position.x < 50 || balloon.position.x > size.width - 50 {
-                balloon.physicsBody?.velocity.dx *= -1
+            // Remove if balloon has floated off-screen horizontally
+            if balloon.position.x < -150 || balloon.position.x > size.width + 150 {
+                balloon.removeFromParent()
             }
         }
 
@@ -616,9 +758,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     private func togglePause() {
-        isPaused.toggle()
+        isGamePaused.toggle()
 
-        if isPaused {
+        if isGamePaused {
             // Show pause menu
             showPauseMenu()
         } else {

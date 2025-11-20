@@ -29,7 +29,9 @@
 		AA0044 /* ScorePopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0045; };
 		AA0035 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0036; };
 		AA0037 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA0038; };
-/* End PBXBuildFile section */
+
+		21F38A /* ModeSelectionScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBCDAF /* ModeSelectionScene.swift */; };
+		743154 /* StatsScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387AD3 /* StatsScene.swift */; };/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		AA0002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -56,7 +58,9 @@
 		AA0038 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AA0040 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA0050 /* BalloonShooter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BalloonShooter.app; sourceTree = BUILT_PRODUCTS_DIR; };
-/* End PBXFileReference section */
+
+		DBCDAF /* ModeSelectionScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeSelectionScene.swift; sourceTree = "<group>"; };
+		387AD3 /* StatsScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsScene.swift; sourceTree = "<group>"; };/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AA0051 /* Frameworks */ = {
@@ -106,6 +110,9 @@
 			isa = PBXGroup;
 			children = (
 				AA0008 /* GameScene.swift */,
+				
+				DBCDAF /* ModeSelectionScene.swift */,
+				387AD3 /* StatsScene.swift */,
 				AA0010 /* MenuScene.swift */,
 				AA0012 /* GameOverScene.swift */,
 				AA0014 /* SettingsScene.swift */,
@@ -217,6 +224,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				21F38A /* ModeSelectionScene.swift in Sources */,
+				743154 /* StatsScene.swift in Sources */,
 				AA0007 /* GameScene.swift in Sources */,
 				AA0005 /* GameViewController.swift in Sources */,
 				AA0001 /* AppDelegate.swift in Sources */,

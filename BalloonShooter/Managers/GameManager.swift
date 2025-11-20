@@ -23,6 +23,11 @@ class GameManager {
     var hasShield: Bool = false
     var activePowerUps: [PowerUpType: TimeInterval] = [:]
 
+    // Score breakdown tracking
+    var baseScore: Int = 0          // Score from popping balloons
+    var comboScore: Int = 0         // Bonus from combo multipliers
+    var waveScore: Int = 0          // Wave completion bonuses
+
     // Wave configuration
     var balloonsPerWave: Int {
         return min(10 + currentWave, 20)
@@ -47,12 +52,24 @@ class GameManager {
         combo = 0
         hasShield = false
         activePowerUps.removeAll()
+
+        // Reset score breakdown
+        baseScore = 0
+        comboScore = 0
+        waveScore = 0
     }
 
     // Scoring
     func addScore(_ points: Int) {
         let multiplier = max(1, combo / 3)
-        score += points * multiplier
+        let totalPoints = points * multiplier
+        let bonusPoints = totalPoints - points
+
+        baseScore += points
+        if bonusPoints > 0 {
+            comboScore += bonusPoints
+        }
+        score += totalPoints
     }
 
     func incrementCombo() {
@@ -81,7 +98,10 @@ class GameManager {
     func completeWave() {
         currentWave += 1
         let waveBonus = currentWave * 50
-        addScore(waveBonus)
+
+        // Track wave bonus separately
+        waveScore += waveBonus
+        score += waveBonus
 
         // Regenerate life every 3 waves in arcade mode
         if currentMode == .arcade && currentWave % 3 == 0 {

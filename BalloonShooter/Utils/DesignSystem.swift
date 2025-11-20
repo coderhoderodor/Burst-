@@ -22,14 +22,34 @@ struct DesignSystem {
         static let mystery = UIColor(red: 1.0, green: 0.55, blue: 0.0, alpha: 1.0)      // #FF8C00
         static let speed = UIColor(red: 0.0, green: 1.0, blue: 0.53, alpha: 1.0)        // #00FF88
 
-        // UI Colors
-        static let hudBackground = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.5)
-        static let buttonPrimary = UIColor(red: 0.2, green: 0.8, blue: 0.4, alpha: 1.0)
-        static let buttonSecondary = UIColor(red: 0.3, green: 0.5, blue: 0.9, alpha: 1.0)
+        // Modern UI Colors - Simplistic & Clean
+        static let skyBlue = UIColor(red: 0.53, green: 0.81, blue: 0.98, alpha: 1.0)    // #87CEEB
+        static let skyBlueDark = UIColor(red: 0.41, green: 0.70, blue: 0.89, alpha: 1.0) // #68B3E3
+        static let cloudWhite = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.9)    // White with slight transparency
+        static let softShadow = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.15)   // Subtle shadow
+
+        // Button Colors - Vibrant but friendly
+        static let buttonPrimary = UIColor(red: 0.3, green: 0.69, blue: 0.31, alpha: 1.0)    // #4CAF50 Green
+        static let buttonPrimaryHover = UIColor(red: 0.26, green: 0.59, blue: 0.26, alpha: 1.0) // #429742 Darker
+        static let buttonSecondary = UIColor(red: 0.25, green: 0.46, blue: 0.85, alpha: 1.0)   // #3F75D9 Blue
+        static let buttonAccent = UIColor(red: 1.0, green: 0.60, blue: 0.0, alpha: 1.0)       // #FF9900 Orange
+
+        // Background Colors
+        static let backgroundGradientTop = UIColor(red: 0.53, green: 0.81, blue: 0.98, alpha: 1.0)
+        static let backgroundGradientBottom = UIColor(red: 0.95, green: 0.97, blue: 1.0, alpha: 1.0)
+        static let hudBackground = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.3) // More subtle
+        static let cardBackground = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.25) // Glass effect
+
+        // Text Colors
         static let textPrimary = UIColor.white
-        static let textStroke = UIColor.black
+        static let textSecondary = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+        static let textDark = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0)
+        static let textStroke = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.6)
+
+        // State Colors
         static let warning = UIColor(red: 1.0, green: 0.3, blue: 0.3, alpha: 1.0)
-        static let success = UIColor(red: 0.3, green: 1.0, blue: 0.3, alpha: 1.0)
+        static let success = UIColor(red: 0.3, green: 0.85, blue: 0.4, alpha: 1.0)
+        static let accent = UIColor(red: 1.0, green: 0.84, blue: 0.0, alpha: 1.0) // Gold
     }
 
     // MARK: - Typography
@@ -37,20 +57,32 @@ struct DesignSystem {
         static let titleFont = "Arial-BoldMT"
         static let bodyFont = "Arial"
         static let buttonFont = "Arial-BoldMT"
+        static let numberFont = "Arial-BoldMT"
 
-        static let titleSize: CGFloat = 48
-        static let subtitleSize: CGFloat = 24
-        static let bodySize: CGFloat = 18
-        static let numberSize: CGFloat = 32
-        static let buttonSize: CGFloat = 28
+        static let heroSize: CGFloat = 56        // Main title
+        static let titleSize: CGFloat = 44       // Scene titles
+        static let subtitleSize: CGFloat = 24    // Subtitles
+        static let bodySize: CGFloat = 18        // Body text
+        static let captionSize: CGFloat = 14     // Small text
+        static let numberSize: CGFloat = 36      // Score numbers
+        static let buttonLargeSize: CGFloat = 32 // Primary buttons
+        static let buttonSize: CGFloat = 24      // Secondary buttons
     }
 
     // MARK: - Spacing
     struct Spacing {
+        static let tiny: CGFloat = 4
+        static let small: CGFloat = 8
+        static let medium: CGFloat = 16
+        static let large: CGFloat = 24
+        static let extraLarge: CGFloat = 32
+        static let huge: CGFloat = 48
+
         static let margin: CGFloat = 20
         static let elementSpacing: CGFloat = 12
-        static let sectionSpacing: CGFloat = 24
+        static let sectionSpacing: CGFloat = 32
         static let buttonPadding: CGFloat = 16
+        static let cardPadding: CGFloat = 20
     }
 
     // MARK: - Animation
@@ -167,28 +199,51 @@ struct DesignSystem {
     }
 
     // MARK: - UI Components
-    static func createButton(title: String, width: CGFloat = 200, isPrimary: Bool = true) -> SKNode {
+
+    enum ButtonStyle {
+        case primary
+        case secondary
+        case accent
+        case icon
+    }
+
+    static func createButton(title: String, width: CGFloat = 200, height: CGFloat = 60, style: ButtonStyle = .primary) -> SKNode {
         let container = SKNode()
+        let cornerRadius = height / 2
 
-        // Button background
-        let background = SKShapeNode(rect: CGRect(x: -width/2, y: -25, width: width, height: 50), cornerRadius: 25)
-        background.fillColor = isPrimary ? Colors.buttonPrimary : Colors.buttonSecondary
-        background.strokeColor = .white
-        background.lineWidth = 3
-        background.zPosition = 0
-        container.addChild(background)
-
-        // Shadow effect (darker copy offset down)
-        let shadow = SKShapeNode(rect: CGRect(x: -width/2, y: -27, width: width, height: 50), cornerRadius: 25)
-        shadow.fillColor = UIColor(white: 0, alpha: 0.3)
+        // Shadow effect (subtle)
+        let shadow = SKShapeNode(rect: CGRect(x: -width/2, y: -(height/2) - 2, width: width, height: height), cornerRadius: cornerRadius)
+        shadow.fillColor = Colors.softShadow
         shadow.strokeColor = .clear
         shadow.zPosition = -1
         container.addChild(shadow)
 
+        // Button background
+        let background = SKShapeNode(rect: CGRect(x: -width/2, y: -height/2, width: width, height: height), cornerRadius: cornerRadius)
+
+        switch style {
+        case .primary:
+            background.fillColor = Colors.buttonPrimary
+            background.strokeColor = .clear
+        case .secondary:
+            background.fillColor = Colors.buttonSecondary
+            background.strokeColor = .clear
+        case .accent:
+            background.fillColor = Colors.buttonAccent
+            background.strokeColor = .clear
+        case .icon:
+            background.fillColor = Colors.cardBackground
+            background.strokeColor = Colors.cloudWhite
+            background.lineWidth = 2
+        }
+
+        background.zPosition = 0
+        container.addChild(background)
+
         // Button text
         let label = SKLabelNode(text: title)
         label.fontName = Typography.buttonFont
-        label.fontSize = Typography.buttonSize
+        label.fontSize = style == .primary ? Typography.buttonLargeSize : Typography.buttonSize
         label.fontColor = .white
         label.verticalAlignmentMode = .center
         label.zPosition = 1
@@ -197,11 +252,53 @@ struct DesignSystem {
         return container
     }
 
+    static func createCard(width: CGFloat, height: CGFloat) -> SKShapeNode {
+        let card = SKShapeNode(rect: CGRect(x: -width/2, y: -height/2, width: width, height: height), cornerRadius: 20)
+        card.fillColor = Colors.cardBackground
+        card.strokeColor = Colors.cloudWhite
+        card.lineWidth = 2
+        return card
+    }
+
+    static func createIconButton(icon: String, size: CGFloat = 50) -> SKNode {
+        let container = SKNode()
+
+        let background = SKShapeNode(circleOfRadius: size/2)
+        background.fillColor = Colors.cardBackground
+        background.strokeColor = Colors.cloudWhite
+        background.lineWidth = 2
+        container.addChild(background)
+
+        let label = SKLabelNode(text: icon)
+        label.fontSize = size * 0.5
+        label.verticalAlignmentMode = .center
+        container.addChild(label)
+
+        return container
+    }
+
     static func createHUDPanel(size: CGSize) -> SKShapeNode {
         let panel = SKShapeNode(rect: CGRect(origin: .zero, size: size), cornerRadius: 10)
         panel.fillColor = Colors.hudBackground
-        panel.strokeColor = UIColor(white: 1, alpha: 0.3)
-        panel.lineWidth = 2
+        panel.strokeColor = UIColor(white: 1, alpha: 0.2)
+        panel.lineWidth = 1
         return panel
+    }
+
+    static func createGradientBackground(size: CGSize) -> SKNode {
+        let container = SKNode()
+
+        // Simple two-color gradient simulation using overlapping shapes
+        let background = SKShapeNode(rect: CGRect(origin: .zero, size: size))
+        background.fillColor = Colors.backgroundGradientBottom
+        background.strokeColor = .clear
+        container.addChild(background)
+
+        let topGradient = SKShapeNode(rect: CGRect(x: 0, y: size.height * 0.3, width: size.width, height: size.height * 0.7))
+        topGradient.fillColor = Colors.backgroundGradientTop
+        topGradient.strokeColor = .clear
+        container.addChild(topGradient)
+
+        return container
     }
 }

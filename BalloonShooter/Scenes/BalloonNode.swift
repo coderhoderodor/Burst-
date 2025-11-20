@@ -48,16 +48,16 @@ class BalloonNode: SKShapeNode {
         // Add floating animation
         addFloatingAnimation()
 
-        // Add horizontal movement for speed balloons
+        // Add vertical zigzag movement for speed balloons
         if type == .speed {
-            let moveDistance: CGFloat = 100
+            let moveDistance: CGFloat = 80
             let duration: TimeInterval = 1.5
             let moveAction = SKAction.sequence([
-                SKAction.moveBy(x: moveDistance, y: 0, duration: duration),
-                SKAction.moveBy(x: -moveDistance * 2, y: 0, duration: duration * 2),
-                SKAction.moveBy(x: moveDistance, y: 0, duration: duration)
+                SKAction.moveBy(x: 0, y: moveDistance, duration: duration),
+                SKAction.moveBy(x: 0, y: -moveDistance * 2, duration: duration * 2),
+                SKAction.moveBy(x: 0, y: moveDistance, duration: duration)
             ])
-            run(SKAction.repeatForever(moveAction))
+            run(SKAction.repeatForever(moveAction), withKey: "speedMovement")
         }
 
         // Warning pulsing for bomb balloons
